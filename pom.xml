@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <groupId>org.webjars</groupId>
     <artifactId>jquerypp</artifactId>
-    <version>1.0b3-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>jQuery++</name>
     <description>WebJar for jQuery++</description>
     <url>http://webjars.org</url>
@@ -41,8 +41,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jquerypp.version>1.0b2</jquerypp.version>
-        <jquerypp.sourceUrl>https://github.com/downloads/jupiterjs/jquerypp/</jquerypp.sourceUrl>
+        <jquerypp.version>1.0.1</jquerypp.version>
+        <jquerypp.sourceUrl>http://jquerypp.com/downloads</jquerypp.sourceUrl>
         <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${jquerypp.version}</destDir>
     </properties>
 
@@ -66,23 +66,28 @@
                         <goals><goal>download-single</goal></goals>
                         <configuration>
                             <url>${jquerypp.sourceUrl}</url>
-                            <fromFile>jquerypp-${jquerypp.version}.zip</fromFile>
-                            <toFile>${project.build.directory}/jquerypp.zip</toFile>
+                            <fromFile>${project.artifactId}-${jquerypp.version}.zip</fromFile>
+                            <toFile>${project.build.directory}/${project.artifactId}.zip</toFile>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>truezip-maven-plugin</artifactId>
-                <version>1.0</version>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
                 <executions>
                     <execution>
                         <phase>process-resources</phase>
-                        <goals><goal>cp</goal></goals>
+                        <goals><goal>run</goal></goals>
                         <configuration>
-                            <from>${project.build.directory}/jquerypp.zip</from>
-                            <to>${destDir}</to>
+                            <target>
+                                <echo message="unzip archive" />
+                                <unzip src="${project.build.directory}/${project.artifactId}.zip" dest="${project.build.directory}" />
+                                <echo message="moving resources" />
+                                <move todir="${destDir}">
+                                    <fileset dir="${project.build.directory}/${jquerypp.version}" />
+                                </move>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -94,35 +99,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.2</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
     
 </project>
